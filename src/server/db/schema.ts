@@ -1,0 +1,11 @@
+// Aggregated DB schema — all module schemas are re-exported here.
+// Drizzle Kit reads this file for migrations.
+// Module schemas are added here as they are built.
+
+export * from "./schema/tenants";
+export * from "./schema/users";
+export * from "./schema/ai-event-log";
+export * from "./schema/audit-log";
+export * from "./schema/ai-action-commands";
+export * from "./schema/outbox";
+export * from "./schema/files";

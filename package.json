@@ -1,0 +1,52 @@
+{
+  "name": "carlion",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx supabase/seed.ts",
+    "db:studio": "drizzle-kit studio",
+    "db:sql": "tsx supabase/run-migrations.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.37.0",
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.48.1",
+    "@tanstack/react-query": "^5.67.3",
+    "@trpc/client": "^11.0.0",
+    "@trpc/react-query": "^11.0.0",
+    "@trpc/server": "^11.0.0",
+    "drizzle-orm": "^0.40.0",
+    "next": "16.2.2",
+    "postgres": "^3.4.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "superjson": "^2.2.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.15",
+    "@types/dotenv": "^8.2.3",
+    "@types/node": "^20.17.19",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "dotenv": "^17.4.0",
+    "drizzle-kit": "^0.30.4",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.2",
+    "tailwindcss": "^4.0.15",
+    "tsx": "^4.19.3",
+    "typescript": "^5",
+    "vitest": "^3.0.8"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
