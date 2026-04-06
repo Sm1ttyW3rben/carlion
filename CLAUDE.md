@@ -7,9 +7,9 @@
 
 1. `docs/00_VISION.md` — Was und Warum. Prinzipien, MVP-Scope.
 2. `docs/01_ARCHITECTURE.md` — Wie. Tech Stack, Patterns, Regeln.
-3. `docs/modules/MOD_XX_*.md` — Modul-Details.
-4. `docs/CROSS_*.md` — Modulübergreifende Systeme.
-5. **Diese Datei** — Kurzfassung. Bei Widerspruch verliert sie.
+3. `docs/modules/MOD_XX_*.md` — Modul-Details (Datenmodell, API, AI-Tools, Business Rules).
+4. `docs/CROSS_*.md` — Modulübergreifende Systeme (AI-Agents, Onboarding, Search).
+5. **Diese Datei** — Kurzfassung der Regeln. Bei Widerspruch verliert sie.
 
 ## Tech Stack
 
@@ -30,23 +30,36 @@
 3. **Service Role nur für System-Jobs und Public Read Routes.** Kein Service Role in normalen tenant-authentifizierten Request-Handlern. Ausnahmen nur für Migrationen, Seed-Daten, Cron-Jobs und dedizierte Public Read Routes (`app/api/public/`).
 
 ### AI & Modulgrenzen
-4. **AI-Aktionen brauchen Bestätigung.** Phase 1 = nur Stufe 1 (Assistent). Jede schreibende AI-Aktion durchläuft: Propose → Preview → Confirm → Execute → Log → Undo.
-5. **Jedes MVP-Modul exponiert `ai-tools.ts`.** Kein Modul darf nur über UI/tRPC erreichbar sein. AI muss lesen und schreiben können.
-6. **Modulgrenzen respektieren.** Imports nur über `index.ts`. Nie auf interne Dateien anderer Module zugreifen.
+4. **AI-Aktionen brauchen Bestätigung.** Phase 1 = nur Stufe 1 (Assistent). Jede schreibende AI-Aktion durchläuft: Propose → Preview → Confirm → Execute → Log → Undo. Implementiert über `aiCommandService.propose()` (siehe `CROSS_AI_AGENTS.md`).
+5. **Jedes MVP-Modul exponiert `ai-tools.ts`.** Kein Modul darf nur über UI/tRPC erreichbar sein. Schreibende Tools heißen `propose_*` und rufen nie direkt Service-Mutations auf.
+6. **Modulgrenzen respektieren.** Imports nur über `index.ts`. Nie auf interne Dateien anderer Module zugreifen. Cross-Module-Writes nur über benannte Service-Exports (`markVehicleAsSold`, `markContactAsCustomer`, `createContactFromExternal`, `addActivityForContact`, `bulkUpsertVehicles` etc.).
 7. **Geschäftslogik in Services, nicht in Routern.** tRPC Router enthält Orchestrierung + Validation. Business-Logik lebt in `modules/<modul>/services/`.
 
+### Status, Publish & Lifecycle
+8. **Status-Änderungen über dedizierte Mutations.** `inventory.update` darf weder `status` noch `published` ändern — dafür gibt es `updateStatus`, `publish`, `unpublish`. `sales.update` darf `stage` nicht ändern — dafür gibt es `moveToStage`. Kein generischer Patch für Lifecycle-Felder.
+9. **Rollenbasierte DTOs.** Nie eine einzelne Entity an alle Rollen ausliefern. Getrennte Typen: `*Record` (DB), `*View` (API, mit aufgelösten Relationen), `*ViewRestricted` (ohne sensible Felder), `*ListItem` (kompakt), `Public*` (öffentlich). Einkaufspreise/Margen nie an `salesperson`/`receptionist`/`viewer`.
+
 ### Integrationen & Public Delivery
-8. **Externe Sends über Outbox/Worker.** E-Mail, WhatsApp und Börsen-Sync nie direkt aus Router senden. Immer über Outbox — außer user-getriggerte Sends (sofort, Outbox nur als Retry-Fallback). Details in `01_ARCHITECTURE.md` Abschnitt 8.
-9. **Öffentliche Daten nur über Public Read Routes.** Website-/Fahrzeugdaten für Endkunden nur über `app/api/public/`. Keine Wiederverwendung normaler tenant-geschützter Query-Pfade.
+10. **Externe Sends über Outbox/Worker.** E-Mail, WhatsApp und Börsen-Sync nie direkt aus Router senden. Immer über Outbox — außer user-getriggerte Sends (sofort, Outbox nur als Retry-Fallback). Details in `01_ARCHITECTURE.md` Abschnitt 8.
+11. **Öffentliche Daten nur über Public Read Routes.** Website-/Fahrzeugdaten für Endkunden nur über `app/api/public/`. Read-only, Service Role. Öffentliche Write-Pfade (z.B. Kontaktformular) unter `app/api/forms/`, NICHT unter `app/api/public/`.
+12. **Webhooks architekturkonform.** Signatur validieren → `webhook_log` INSERT → HTTP 200 sofort → Verarbeitung asynchron (Fast-Path + Cron-Fallback). Siehe WhatsApp-Modul als Referenz.
+13. **File-Uploads über dedizierte Route Handler.** tRPC kann kein multipart. Logo-Upload, Fahrzeugfotos, Börsen-Import: jeweils eigener Route Handler unter `app/api/upload/`. Alle Dateien über `files`-Tabelle referenzieren, keine direkten URLs in Fachtabellen.
+14. **Import-Idempotenz.** Börsen-Import: Partial Unique Index auf `(tenant_id, source, source_reference)`. Import-Sessions serverseitig (kein Client-Trust). Kontakt-Duplikat-Check kanalübergreifend (email, phone, phone_mobile, whatsapp_number), normalisiert.
 
 ### Produkt-Guardrails
-10. **White-Label:** Kundensichtbare Outputs lesen Branding immer aus dem Tenant-Profil (Logo, Farben, Ton). Nie Carlion in kundensichtbaren Interfaces.
-11. **Mobile-First:** Händler-UI ist mobile-first. Phase 1 = PWA-Shell. Kein nativer App-Ansatz.
-12. **Kein `any`.** Wenn unvermeidbar: lokal kapseln und begründen.
-13. **Nur MVP-Module bauen.** Keine Module außerhalb des MVP-Scope, es sei denn explizit beauftragt.
+15. **White-Label:** Kundensichtbare Outputs lesen Branding immer aus dem Tenant-Profil (Logo, Farben, Ton). Nie Carlion in kundensichtbaren Interfaces. Händlername kommt aus `tenants.name`, nicht aus `tenant_branding`.
+16. **Mobile-First:** Händler-UI ist mobile-first. Phase 1 = PWA-Shell. Kein nativer App-Ansatz.
+17. **Kein `any`.** Wenn unvermeidbar: lokal kapseln und begründen.
+18. **Nur MVP-Module bauen.** Keine Module außerhalb des MVP-Scope, es sei denn explizit beauftragt.
+19. **Berechnete Felder nicht speichern wenn volatil.** `days_in_stock` und `days_in_current_stage` als Query-Time-Expression, nicht als STORED generated column (PostgreSQL erlaubt kein `current_date` in generated columns). `is_active` auf Kontakten: nicht speichern, aus `last_interaction_at` berechnen.
+20. **Kein Event-System im MVP.** Modulübergreifende Konsistenz über Reconciliation-Crons (Listings, Website) statt Events. Einfacher, testbarer, keine Infrastruktur-Erweiterung nötig.
 
 ### Testing
-14. **Cross-Tenant-Tests sind Pflicht.** Bei jeder tenant-spezifischen Ressource und jedem kritischen Datenzugriff existiert ein Test: "Tenant A sieht nie Daten von Tenant B."
+21. **Cross-Tenant-Tests sind Pflicht.** Bei jeder tenant-spezifischen Ressource und jedem kritischen Datenzugriff existiert ein Test: "Tenant A sieht nie Daten von Tenant B."
+
+### API & Daten
+22. **Cursor-Pagination, kein Offset.** Alle Listen-Endpoints nutzen Compound-Cursor `(sort_field_value, id)`. Kein `totalCount`, kein Offset. Standard: 20 Items, Max: 100.
+23. **JWT Custom Claims über Auth Hook.** `tenant_id` und `role` im JWT werden über Supabase Auth Hook oder Token-Refresh gesetzt — nie manuell im Modulcode oder in einer DB-Transaktion.
 
 ## MVP-Scope (nur diese Module)
 
