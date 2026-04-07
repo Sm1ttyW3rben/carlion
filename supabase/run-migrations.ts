@@ -21,6 +21,7 @@ const migrations = [
   "supabase/migrations/0001_base_schema.sql",
   "supabase/migrations/0002_rls_policies.sql",
   "supabase/migrations/0003_jwt_claims_hook.sql",
+  "supabase/migrations/0004_dna_engine.sql",
 ];
 
 async function run() {
