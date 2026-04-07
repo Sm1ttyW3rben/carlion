@@ -29,12 +29,18 @@ export default function OnboardingBrandingPage() {
   const [city, setCity] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const applyCrawlResult = api.dna.applyCrawlResult.useMutation();
+
   const startCrawl = api.dna.startCrawl.useMutation({
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       setCrawlResult(result);
       if (result.status === "completed") {
         setCrawlStatus("completed");
-        // Navigate to review step after short delay
+        try {
+          await applyCrawlResult.mutateAsync({ crawlId: result.id });
+        } catch {
+          // Apply failed — review page will still show current branding
+        }
         setTimeout(() => router.push("/onboarding/branding/review"), 800);
       } else {
         setCrawlStatus("failed");

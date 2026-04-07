@@ -251,7 +251,7 @@ export function extractDataFromHtml(
   $("style").each((_, el) => {
     const css = $(el).html() ?? "";
     // Custom properties
-    const customPropPattern = /--[\w-]+\s*:\s*(#[0-9a-fA-F]{3,6})/g;
+    const customPropPattern = /--[\w-]+\s*:\s*(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})\b/g;
     let match: RegExpExecArray | null;
     while ((match = customPropPattern.exec(css)) !== null) {
       const hex = match[1]!.toUpperCase();

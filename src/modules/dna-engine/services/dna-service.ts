@@ -739,8 +739,11 @@ export async function startCrawl(
         const primaryColor =
           extractedData.colorsFound[0]?.hex ?? "#2563EB";
 
-        // Step 4: Ingest logo (if found)
-        const [firstLogoCandidate] = extractedData.logoCandidates;
+        // Step 4: Ingest logo (if found) — skip SVG, sharp only handles raster formats
+        const rasterCandidates = extractedData.logoCandidates.filter(
+          (c) => !c.url.toLowerCase().endsWith(".svg")
+        );
+        const [firstLogoCandidate] = rasterCandidates;
         if (firstLogoCandidate) {
           const logoBuffer = await downloadLogoCandidate(firstLogoCandidate.url);
           if (logoBuffer) {
