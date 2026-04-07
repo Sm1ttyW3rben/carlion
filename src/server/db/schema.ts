@@ -9,3 +9,4 @@ export * from "./schema/audit-log";
 export * from "./schema/ai-action-commands";
 export * from "./schema/outbox";
 export * from "./schema/files";
+export * from "@/modules/dna-engine/db/schema";
