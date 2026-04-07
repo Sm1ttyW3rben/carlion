@@ -10,3 +10,4 @@ export * from "./schema/ai-action-commands";
 export * from "./schema/outbox";
 export * from "./schema/files";
 export * from "@/modules/dna-engine/db/schema";
+export * from "@/modules/inventory/db/schema";
