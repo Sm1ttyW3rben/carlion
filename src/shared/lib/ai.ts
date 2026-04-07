@@ -31,7 +31,7 @@ export interface CallClaudeOptions {
   model?: string;
 }
 
-const DEFAULT_MODEL = "claude-sonnet-4-20250514";
+const DEFAULT_MODEL = "claude-sonnet-4-6";
 
 /**
  * Calls the Claude API and returns the text response.
