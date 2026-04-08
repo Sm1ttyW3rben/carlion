@@ -15,6 +15,7 @@ export {
   getVehicleById,
   getVehiclesForTenant,
   getPublicVehiclesForSlug,
+  getPublicVehicleById,
   bulkUpsertVehicles,
   markVehicleAsSold,
   releaseVehicleReservation,

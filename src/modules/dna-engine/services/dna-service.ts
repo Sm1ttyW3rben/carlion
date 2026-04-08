@@ -323,6 +323,43 @@ export async function getPublicBrandingForSlug(
 }
 
 // ---------------------------------------------------------------------------
+// getPublicImprintForSlug — no auth, service role, for Impressum page
+// ---------------------------------------------------------------------------
+
+export async function getPublicImprintForSlug(slug: string): Promise<{
+  name: string;
+  address: Address | null;
+  phone: string | null;
+  email: string | null;
+  imprintData: ImprintData | null;
+} | null> {
+  const supabase = createSupabaseServiceClient();
+
+  const { data: tenantRow } = await supabase
+    .from("tenants")
+    .select("id, name, status")
+    .eq("slug", slug)
+    .single();
+
+  if (!tenantRow) return null;
+  if (!["active", "trial"].includes(tenantRow.status)) return null;
+
+  const { data: brandingRow } = await supabase
+    .from("tenant_branding")
+    .select("address, phone, email, imprint_data")
+    .eq("tenant_id", tenantRow.id)
+    .single();
+
+  return {
+    name: tenantRow.name,
+    address: (brandingRow?.address as Address) ?? null,
+    phone: brandingRow?.phone ?? null,
+    email: brandingRow?.email ?? null,
+    imprintData: (brandingRow?.imprint_data as ImprintData) ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Update operations (each runs in a transaction + syncs compact copy)
 // ---------------------------------------------------------------------------
 

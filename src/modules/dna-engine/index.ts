@@ -8,7 +8,7 @@
  */
 
 // Service functions for inter-module consumption
-export { getBrandingForTenant, getPublicBrandingForSlug } from "./services/dna-service";
+export { getBrandingForTenant, getPublicBrandingForSlug, getPublicImprintForSlug } from "./services/dna-service";
 
 // Types needed by consumers
 export type {

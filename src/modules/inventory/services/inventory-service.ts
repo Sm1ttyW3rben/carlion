@@ -1645,3 +1645,71 @@ export async function getPublicVehiclesForSlug(
 
   return { items: publicItems, nextCursor };
 }
+
+// ---------------------------------------------------------------------------
+// getPublicVehicleById — no auth, service role
+// ---------------------------------------------------------------------------
+
+export async function getPublicVehicleById(
+  slug: string,
+  vehicleId: string
+): Promise<PublicVehicle | null> {
+  const supabase = createSupabaseServiceClient();
+
+  const { data: tenant } = await supabase
+    .from("tenants")
+    .select("id")
+    .eq("slug", slug)
+    .in("status", ["active", "trial"])
+    .single();
+
+  if (!tenant) return null;
+
+  const { data: r } = await supabase
+    .from("vehicles")
+    .select("*, files!inner(storage_path, alt_text, position, kind)")
+    .eq("id", vehicleId)
+    .eq("tenant_id", tenant.id)
+    .eq("published", true)
+    .is("deleted_at", null)
+    .single();
+
+  if (!r) return null;
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const storageUrl = (path: string) => `${supabaseUrl}/storage/v1/object/public/${path}`;
+
+  const photoFiles = (r.files as { storage_path: string; alt_text: string | null; position: number; kind: string }[] ?? [])
+    .filter((f) => ["photo", "thumbnail_detail"].includes(f.kind))
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+    .map((f) => ({
+      url: storageUrl(f.storage_path),
+      altText: f.alt_text ?? null,
+      position: f.position ?? 0,
+    }));
+
+  return {
+    id: r.id as string,
+    make: r.make as string,
+    model: r.model as string,
+    variant: (r.variant as string | null) ?? null,
+    firstRegistration: (r.first_registration as string | null) ?? null,
+    mileageKm: (r.mileage_km as number | null) ?? null,
+    fuelType: (r.fuel_type as string | null) ?? null,
+    transmission: (r.transmission as string | null) ?? null,
+    powerKw: (r.power_kw as number | null) ?? null,
+    powerPs: (r.power_ps as number | null) ?? null,
+    colorExterior: (r.color_exterior as string | null) ?? null,
+    bodyType: (r.body_type as string | null) ?? null,
+    condition: (r.condition as string | null) ?? null,
+    askingPriceGross: (r.asking_price_gross as string | null) ?? null,
+    taxType: (r.tax_type as string) ?? "margin",
+    title: (r.title as string | null) ?? null,
+    description: (r.description as string | null) ?? null,
+    equipment: (r.equipment as string[]) ?? [],
+    huValidUntil: (r.hu_valid_until as string | null) ?? null,
+    accidentFree: (r.accident_free as boolean | null) ?? null,
+    photos: photoFiles,
+    featured: (r.featured as boolean) ?? false,
+  };
+}
