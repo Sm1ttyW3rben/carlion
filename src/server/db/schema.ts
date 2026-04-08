@@ -13,3 +13,4 @@ export * from "@/modules/dna-engine/db/schema";
 export * from "@/modules/inventory/db/schema";
 export * from "@/modules/crm/db/schema";
 export * from "@/modules/sales/db/schema";
+export * from "@/modules/listings/db/schema";

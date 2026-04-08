@@ -1,0 +1,24 @@
+{
+  "crons": [
+    {
+      "path": "/api/jobs/process-outbox",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/jobs/listings-reconcile",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/jobs/listings-pull-inquiries",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/jobs/listings-pull-performance",
+      "schedule": "0 */2 * * *"
+    },
+    {
+      "path": "/api/jobs/cleanup",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}

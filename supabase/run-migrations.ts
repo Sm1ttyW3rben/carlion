@@ -25,6 +25,7 @@ const migrations = [
   "supabase/migrations/0005_inventory.sql",
   "supabase/migrations/0006_crm.sql",
   "supabase/migrations/0007_sales.sql",
+  "supabase/migrations/0008_listings.sql",
 ];
 
 async function run() {

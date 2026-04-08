@@ -312,7 +312,7 @@ export async function list(input: DealListInput, ctx: TrpcContext): Promise<{ it
 // getById
 // ---------------------------------------------------------------------------
 
-export async function getById(id: string, ctx: TrpcContext): Promise<DealView> {
+export async function getById(id: string, ctx: TrpcContext): Promise<DealView | DealViewRestricted> {
   const [record] = await ctx.db.select().from(deals)
     .where(and(eq(deals.id, id), eq(deals.tenantId, ctx.tenantId), isNull(deals.deletedAt)))
     .limit(1);
@@ -324,7 +324,7 @@ export async function getById(id: string, ctx: TrpcContext): Promise<DealView> {
 // create
 // ---------------------------------------------------------------------------
 
-export async function create(input: CreateDealInput, ctx: TrpcContext): Promise<DealView> {
+export async function create(input: CreateDealInput, ctx: TrpcContext): Promise<DealView | DealViewRestricted> {
   // Verify contact
   const contact = await getContactById(input.contactId, ctx.tenantId, ctx.db);
   if (!contact) throw new TRPCError({ code: "NOT_FOUND", message: "Kontakt nicht gefunden." });
@@ -371,7 +371,7 @@ export async function create(input: CreateDealInput, ctx: TrpcContext): Promise<
 // update
 // ---------------------------------------------------------------------------
 
-export async function update(input: UpdateDealInput, ctx: TrpcContext): Promise<DealView> {
+export async function update(input: UpdateDealInput, ctx: TrpcContext): Promise<DealView | DealViewRestricted> {
   const { id, ...updates } = input;
   const [current] = await ctx.db.select().from(deals)
     .where(and(eq(deals.id, id), eq(deals.tenantId, ctx.tenantId), isNull(deals.deletedAt)))
@@ -397,7 +397,7 @@ export async function update(input: UpdateDealInput, ctx: TrpcContext): Promise<
 // moveToStage
 // ---------------------------------------------------------------------------
 
-export async function moveToStage(input: MoveToStageInput, ctx: TrpcContext): Promise<DealView> {
+export async function moveToStage(input: MoveToStageInput, ctx: TrpcContext): Promise<DealView | DealViewRestricted> {
   const [current] = await ctx.db.select().from(deals)
     .where(and(eq(deals.id, input.id), eq(deals.tenantId, ctx.tenantId), isNull(deals.deletedAt)))
     .limit(1);
@@ -490,7 +490,7 @@ export async function moveToStage(input: MoveToStageInput, ctx: TrpcContext): Pr
         contactId: current.contactId,
         activityType: "note",
         title: `Phase: ${DEAL_STAGE_LABELS[current.stage as DealStage]} → ${DEAL_STAGE_LABELS[input.stage]}`,
-        description: input.notes ?? null,
+        description: input.notes ?? undefined,
         dealId: current.id,
         vehicleId: current.vehicleId,
       }, ctx.tenantId, ctx.db);
@@ -516,7 +516,7 @@ export async function moveToStage(input: MoveToStageInput, ctx: TrpcContext): Pr
 // assignDeal
 // ---------------------------------------------------------------------------
 
-export async function assignDeal(input: AssignDealInput, ctx: TrpcContext): Promise<DealView> {
+export async function assignDeal(input: AssignDealInput, ctx: TrpcContext): Promise<DealView | DealViewRestricted> {
   const [current] = await ctx.db.select({ id: deals.id }).from(deals)
     .where(and(eq(deals.id, input.id), eq(deals.tenantId, ctx.tenantId), isNull(deals.deletedAt)))
     .limit(1);
@@ -539,7 +539,7 @@ export async function assignDeal(input: AssignDealInput, ctx: TrpcContext): Prom
 // archive / restore
 // ---------------------------------------------------------------------------
 
-export async function archive(id: string, ctx: TrpcContext): Promise<DealView> {
+export async function archive(id: string, ctx: TrpcContext): Promise<DealView | DealViewRestricted> {
   const [current] = await ctx.db.select({ id: deals.id, stage: deals.stage }).from(deals)
     .where(and(eq(deals.id, id), eq(deals.tenantId, ctx.tenantId), isNull(deals.deletedAt)))
     .limit(1);
@@ -556,7 +556,7 @@ export async function archive(id: string, ctx: TrpcContext): Promise<DealView> {
   return recordToView(record, ctx);
 }
 
-export async function restore(id: string, ctx: TrpcContext): Promise<DealView> {
+export async function restore(id: string, ctx: TrpcContext): Promise<DealView | DealViewRestricted> {
   const [current] = await ctx.db.select().from(deals)
     .where(and(eq(deals.id, id), eq(deals.tenantId, ctx.tenantId), isNotNull(deals.deletedAt)))
     .limit(1);

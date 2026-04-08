@@ -112,10 +112,10 @@ export default function VerkaufDetailPage({ params }: { params: Promise<{ id: st
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-base">Konditionen</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-500">Angebotspreis:</span> <span className="font-medium">{formatPrice(deal.offeredPrice)}</span></div>
-              <div><span className="text-gray-500">Abschlusspreis:</span> <span className="font-medium">{formatPrice(deal.finalPrice)}</span></div>
+              {"offeredPrice" in deal && <div><span className="text-gray-500">Angebotspreis:</span> <span className="font-medium">{formatPrice(deal.offeredPrice)}</span></div>}
+              {"finalPrice" in deal && <div><span className="text-gray-500">Abschlusspreis:</span> <span className="font-medium">{formatPrice(deal.finalPrice)}</span></div>}
               <div><span className="text-gray-500">Inzahlungnahme:</span> <span>{deal.tradeInVehicle ?? "—"}</span></div>
-              <div><span className="text-gray-500">Inzahlungnahme-Wert:</span> <span>{formatPrice(deal.tradeInValue)}</span></div>
+              {"tradeInValue" in deal && <div><span className="text-gray-500">Inzahlungnahme-Wert:</span> <span>{formatPrice(deal.tradeInValue)}</span></div>}
               <div><span className="text-gray-500">Finanzierung:</span> <span>{deal.financingRequested ? "Ja" : "Nein"}</span></div>
               {deal.lostReason && <div className="col-span-2"><span className="text-gray-500">Verlustgrund:</span> <span className="text-red-600">{deal.lostReason}</span></div>}
             </CardContent>
@@ -165,7 +165,7 @@ export default function VerkaufDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-gray-400" /> {deal.daysInCurrentStage} Tage in aktueller Phase</div>
               <div className="flex items-center gap-2"><User className="h-4 w-4 text-gray-400" /> {deal.assignedToUser?.name ?? "Nicht zugewiesen"}</div>
               <div className="flex items-center gap-2"><CreditCard className="h-4 w-4 text-gray-400" /> Quelle: {deal.source}</div>
-              {deal.internalNotes && <div className="pt-2 border-t"><p className="text-xs text-gray-500">Notizen:</p><p>{deal.internalNotes}</p></div>}
+              {"internalNotes" in deal && deal.internalNotes && <div className="pt-2 border-t"><p className="text-xs text-gray-500">Notizen:</p><p>{deal.internalNotes}</p></div>}
             </CardContent>
           </Card>
         </div>

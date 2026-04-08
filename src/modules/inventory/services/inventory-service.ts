@@ -42,7 +42,7 @@ import type {
   VehicleListInput,
   BulkUpsertVehicleItem,
 } from "../domain/validators";
-import { createSupabaseServerClient } from "@/shared/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseServiceClient } from "@/shared/lib/supabase/server";
 
 // ---------------------------------------------------------------------------
 // Internal helpers
