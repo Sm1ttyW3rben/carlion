@@ -22,6 +22,9 @@ const migrations = [
   "supabase/migrations/0002_rls_policies.sql",
   "supabase/migrations/0003_jwt_claims_hook.sql",
   "supabase/migrations/0004_dna_engine.sql",
+  "supabase/migrations/0005_inventory.sql",
+  "supabase/migrations/0006_crm.sql",
+  "supabase/migrations/0007_sales.sql",
 ];
 
 async function run() {
