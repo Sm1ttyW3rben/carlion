@@ -7,6 +7,9 @@
  * Spec: MOD_02 Section 10
  */
 
+// Drizzle table — for cross-module FK references and JOIN queries only
+export { vehicles } from "./db/schema";
+
 // Service functions for inter-module consumption
 export {
   getVehicleById,

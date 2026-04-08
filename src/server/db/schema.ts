@@ -11,3 +11,5 @@ export * from "./schema/outbox";
 export * from "./schema/files";
 export * from "@/modules/dna-engine/db/schema";
 export * from "@/modules/inventory/db/schema";
+export * from "@/modules/crm/db/schema";
+export * from "@/modules/sales/db/schema";

@@ -42,7 +42,7 @@ import type {
   VehicleListInput,
   BulkUpsertVehicleItem,
 } from "../domain/validators";
-import { createSupabaseServiceClient } from "@/shared/lib/supabase/server";
+import { createSupabaseServerClient } from "@/shared/lib/supabase/server";
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -264,7 +264,7 @@ async function triggerPublicRevalidation(tenantId: string): Promise<void> {
 /** Deletes public photo derivatives from Supabase Storage */
 async function deletePublicDerivatives(vehicleId: string, tenantId: string): Promise<void> {
   try {
-    const supabase = createSupabaseServiceClient();
+    const supabase = await createSupabaseServerClient();
     const { data } = await supabase.storage
       .from("vehicles-public")
       .list(`${tenantId}/${vehicleId}`);
