@@ -6,6 +6,7 @@ import { crmRouter } from "@/modules/crm/api/router";
 import { salesRouter } from "@/modules/sales/api/router";
 import { listingsRouter } from "@/modules/listings/api/router";
 import { websiteRouter } from "@/modules/website-builder/api/router";
+import { whatsappRouter } from "@/modules/whatsapp/api/router";
 
 // Root router — module routers are registered here as they are built.
 // Each module gets exactly one router under its namespace.
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   sales: salesRouter,          // Module 4: Verkauf
   listings: listingsRouter,    // Module 5: Börsen-Hub
   website: websiteRouter,      // Module 6: Website Builder
+  whatsapp: whatsappRouter,    // Module 7: WhatsApp
   // whatsapp: whatsappRouter, ← Module 7: WhatsApp
   // assistant: assistantRouter, ← AI Assistent (cross-module)
 });

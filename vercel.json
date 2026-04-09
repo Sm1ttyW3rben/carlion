@@ -19,6 +19,14 @@
     {
       "path": "/api/jobs/cleanup",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/jobs/process-whatsapp-webhooks",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/jobs/whatsapp-media-download",
+      "schedule": "*/2 * * * *"
     }
   ]
 }

@@ -15,3 +15,5 @@ export * from "@/modules/crm/db/schema";
 export * from "@/modules/sales/db/schema";
 export * from "@/modules/listings/db/schema";
 export * from "@/modules/website-builder/db/schema";
+export * from "./schema/webhook-log";
+export * from "@/modules/whatsapp/db/schema";
